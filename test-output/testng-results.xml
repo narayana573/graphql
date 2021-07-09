@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testng-results ignored="9" total="12" passed="3" failed="0" skipped="0">
+  <reporter-output>
+  </reporter-output>
+  <suite started-at="2021-07-05T17:39:47 IST" name="Default suite" finished-at="2021-07-05T17:39:53 IST" duration-ms="5897">
+    <groups>
+    </groups>
+    <test started-at="2021-07-05T17:39:47 IST" name="Default test" finished-at="2021-07-05T17:39:53 IST" duration-ms="5897">
+      <class name="enquiryAPI.TC001_CreateEnquiry">
+        <test-method is-config="true" signature="BaseTest()[pri:0, instance:enquiryAPI.TC001_CreateEnquiry@d9345cd]" started-at="2021-07-05T17:39:47 IST" name="BaseTest" finished-at="2021-07-05T17:39:48 IST" duration-ms="984" status="PASS">
+          <reporter-output>
+          </reporter-output>
+        </test-method> <!-- BaseTest -->
+        <test-method signature="isMedplusUser(java.lang.String)[pri:0, instance:enquiryAPI.TC001_CreateEnquiry@d9345cd]" started-at="2021-07-05T17:39:49 IST" name="isMedplusUser" data-provider="Excel" finished-at="2021-07-05T17:39:52 IST" duration-ms="2712" status="PASS">
+          <params>
+            <param index="0">
+              <value>
+                <![CDATA[9966628073]]>
+              </value>
+            </param>
+          </params>
+          <reporter-output>
+          </reporter-output>
+        </test-method> <!-- isMedplusUser -->
+        <test-method signature="isMedplusUser(java.lang.String)[pri:0, instance:enquiryAPI.TC001_CreateEnquiry@d9345cd]" started-at="2021-07-05T17:39:52 IST" name="isMedplusUser" data-provider="Excel" finished-at="2021-07-05T17:39:53 IST" duration-ms="916" status="PASS">
+          <params>
+            <param index="0">
+              <value>
+                <![CDATA[8555884705]]>
+              </value>
+            </param>
+          </params>
+          <reporter-output>
+          </reporter-output>
+        </test-method> <!-- isMedplusUser -->
+        <test-method signature="isMedplusUser(java.lang.String)[pri:0, instance:enquiryAPI.TC001_CreateEnquiry@d9345cd]" started-at="2021-07-05T17:39:53 IST" name="isMedplusUser" data-provider="Excel" finished-at="2021-07-05T17:39:53 IST" duration-ms="328" status="PASS">
+          <params>
+            <param index="0">
+              <value>
+                <![CDATA[9247075590]]>
+              </value>
+            </param>
+          </params>
+          <reporter-output>
+          </reporter-output>
+        </test-method> <!-- isMedplusUser -->
+      </class> <!-- enquiryAPI.TC001_CreateEnquiry -->
+    </test> <!-- Default test -->
+  </suite> <!-- Default suite -->
+</testng-results>
