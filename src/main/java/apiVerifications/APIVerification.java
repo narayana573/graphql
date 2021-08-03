@@ -4,9 +4,7 @@ import org.json.JSONArray;
 import org.json.JSONObject;
 import org.testng.Assert;
 import io.restassured.response.Response;
-
 import com.relevantcodes.extentreports.LogStatus;
-
 import utils.ExtentReportListner;
 
 public class APIVerification extends ExtentReportListner {

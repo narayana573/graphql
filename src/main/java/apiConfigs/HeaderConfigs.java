@@ -20,14 +20,4 @@ public class HeaderConfigs {
 		return defaultHeaders;
 
 	}
-
-	/*
-	 * // Testing code to Access the Headers public static void main(String[] args)
-	 * { HeaderConfigs hed = new HeaderConfigs();
-	 * 
-	 * System.out.println(hed.defaultHeaders().get("content-type"));
-	 * System.out.println(hed.defaultHeaders());
-	 * 
-	 * }
-	 */
 }

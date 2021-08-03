@@ -5,7 +5,7 @@
     <classes>
       <class name="enquiryAPI.TC001_CreateEnquiry">
         <methods>
-          <include name="isMedplusUser"/>
+          <include name="createHealthEnquiry" invocation-numbers="0"/>
           <include name="BaseTest"/>
         </methods>
       </class> <!-- enquiryAPI.TC001_CreateEnquiry -->

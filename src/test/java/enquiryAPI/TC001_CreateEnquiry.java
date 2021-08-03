@@ -1,55 +1,25 @@
 package enquiryAPI;
 
-import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
+import org.testng.asserts.SoftAssert;
 
+import com.relevantcodes.extentreports.LogStatus;
+
+import org.testng.Assert;
+import org.testng.Reporter;
+import org.testng.annotations.DataProvider;
 import apiBuilders.postRequestBody;
-import apiConfigs.APIPath;
 import apiConfigs.HeaderConfigs;
-
-import static io.restassured.RestAssured.given;
 import baseTest.baseTestCase;
 import io.restassured.RestAssured;
 import io.restassured.path.json.JsonPath;
 import io.restassured.response.Response;
-import utils.DataGenerator;
+import utils.FileEnv;
 
 public class TC001_CreateEnquiry extends baseTestCase {
 
 	HeaderConfigs headers = new HeaderConfigs();
 	postRequestBody builder = new postRequestBody();
-
-	@Test(dataProvider = "Excel", dataProviderClass = DataGenerator.class)
-	public void testdataprovider(String channel, String pin) {
-		System.out.println("Channel is::::: " + channel);
-		System.out.println("Channel is::::: " + pin);
-
-	}
-
-	@Test(dataProvider = "Excel", dataProviderClass = DataGenerator.class)
-	public void testdataprovider(String channel) {
-		System.out.println("Channel is::::: " + channel);
-	}
-
-	@Test(dataProvider = "Excel", dataProviderClass = DataGenerator.class)
-	public void isMedplusUser(String mobile) {
-
-		Response response = RestAssured.given().headers(headers.defaultHeaders()).body(builder.isMedplusUser(mobile))
-				.when().log().all().post(APIPath.apiPath.POST_IS_MedplusUser);
-
-		System.out.println(response.asString());
-		System.out.println(response.statusCode());
-		System.out.println();
-		System.out.println();
-
-		// JsonPath jsonPathEvaluator = response.jsonPath();
-
-		// String enquiryID =
-		// jsonPathEvaluator.get("data.updateEnquiryWithDiseases.enquiry_id");
-		// System.out.println("enquiryID received from Response
-		// updateEnquiryWithDiseases:" + enquiryID);
-
-	}
 
 	public static String jsonAsString;
 	public static String enquiryID;
@@ -59,115 +29,65 @@ public class TC001_CreateEnquiry extends baseTestCase {
 		return new Object[][] { { "medplus", "533220", "USER" } };
 	}
 
-	@Test(dataProvider = "createEnquiryData", priority = 1)
+	@Test(dataProvider = "createEnquiryData",groups = { "smoke" })
 	public void createHealthEnquiry(String channel, String location, String created_by) {
 
-		RestAssured.baseURI = "https://api.insuranceinbox.in";
+		test.log(LogStatus.INFO, "createHealthEnquiry: Test Has be Started");
+		
 		String query = "{\"operationName\":null,\"variables\":{},\"query\":\"mutation {\\n  createEnquiry(payload: {channel: \\\""
 				+ channel + "\\\", location: \\\"" + location + "\\\", created_by: \\\"" + created_by
 				+ "\\\"}) {\\n    enquiry_id\\n  }\\n}\\n\"}";
-
-		Response response = given().contentType("application/json").body(query).when().post("/graphql-api/graphql")
-				.thenReturn();
-
+		Response response = RestAssured.given()
+								.contentType("application/json")
+									.body(query)
+										.when()
+											.post("/graphql-api/graphql")
+												.thenReturn();
 		JsonPath jsonPathEvaluator = response.jsonPath();
 		String enquiryID = jsonPathEvaluator.get("data.createEnquiry.enquiry_id");
 		System.out.println("enquiryID received from Response createHealthEnquiry:" + enquiryID);
 		TC001_CreateEnquiry.enquiryID = enquiryID;
+		test.log(LogStatus.PASS, "createHealthEnquiry: Test Has be Passed");
+		SoftAssert softassert = new SoftAssert();
+		String contenttype = response.header("content-type");
+		softassert.assertEquals(contenttype, "application/json");
+		softassert.assertAll();
+		Reporter.log("................");
+		
 
 	}
-/*
 	
-	@Test(dependsOnMethods = { "createHealthEnquiry" }, priority = 2)
-	public void updateEnquiryWithMembers() {
+	
 
-		RestAssured.baseURI = "https://api.insuranceinbox.in";
 
-		String query = "{\"operationName\":null,\"variables\":{},\"query\":\"mutation {\\n  updateEnquiryWithMembers(enquiryId: \\\""
-				+ enquiryID
-				+ "\\\", payload: {members: [{member_id: \\\"self\\\", member: \\\"self\\\", type: \\\"adult\\\", visibleName: \\\"You\\\", age: 22, age_in_months: 0, gender: \\\"M\\\"}]}) {\\n    enquiry_id\\n  }\\n}\\n\"}";
+	@Test(dataProvider = "createEnquiryData",groups = { "sanity" })
+	public void verifyCreateHealthEnquiry(String channel, String location, String created_by) throws InterruptedException {
 
-		Response response = given().contentType("application/json").body(query).when().post("/graphql-api/graphql")
-				.thenReturn();
-
+		test.log(LogStatus.INFO, "Verify createHealthEnquiry: Test Has be Started");
+		
+		Thread.sleep(12000);
+		Response response = RestAssured.given()
+								.contentType("application/json")
+										.when()
+											.get(FileEnv.envAndFile().get("ElasticServerUrl")+"enquiries/items/"+enquiryID)
+												.thenReturn();
 		JsonPath jsonPathEvaluator = response.jsonPath();
-		String enquiryID = jsonPathEvaluator.get("data.updateEnquiryWithMembers.enquiry_id");
-		System.out.println("enquiryID received from Response updateEnquiryWithMembers:" + enquiryID);
+		String verifychannel = jsonPathEvaluator.get("_source.channel");
+		String verifylocation = jsonPathEvaluator.get("_source.location");
+		String verifycreated_by = jsonPathEvaluator.get("_source.created_by");
+
+	
+		if( verifychannel.equals(channel) && verifylocation.equals(location) && verifycreated_by.equals(created_by)   ) 
+										{
+			test.log(LogStatus.PASS, "TC001_CreateEnquiry: Test Has be Passed");
+
+		}
+		else {
+			System.out.println("TC001_CreateEnquiry Not Validated .. Some thing went wrong!!!!!!");
+		}
+
+		
 
 	}
 
-	@Test(dependsOnMethods = { "createHealthEnquiry", "updateEnquiryWithMembers" }, priority = 3)
-	public void updateEnquiryWithDiseases() {
-
-		RestAssured.baseURI = "https://api.insuranceinbox.in";
-
-		String query = "{\"operationName\":null,\"variables\":{},\"query\":\"mutation {\\n  updateEnquiryWithDiseases(enquiryId: \\\""
-				+ enquiryID
-				+ "\\\", payload: {diseases: []}) {\\n    enquiry_id\\n    channel\\n    location\\n    userId\\n    created_by\\n    created_by_userId\\n    chosen_sumInsured\\n    chosen_term\\n    created_at\\n    updated_at\\n  }\\n}\\n\"}";
-
-		Response response = given().contentType("application/json").body(query).when().post("/graphql-api/graphql")
-				.then().extract().response();
-
-		JsonPath jsonPathEvaluator = response.jsonPath();
-		String enquiryID = jsonPathEvaluator.get("data.updateEnquiryWithDiseases.enquiry_id");
-		System.out.println("enquiryID received from Response updateEnquiryWithDiseases:" + enquiryID);
-
-	}
-
-	@Test(dependsOnMethods = { "createHealthEnquiry" }, priority = 4)
-	public void updateEnquiryWithUser() {
-
-		RestAssured.baseURI = "https://api.insuranceinbox.in";
-
-		String query = "{\"operationName\":null,\"variables\":{},\"query\":\"mutation {\\n  updateEnquiryWithUser(enquiryId: \\\""
-				+ enquiryID
-				+ "\\\", payload: {userId: \\\"aee49858-7f28-3532-b570-f91f096d5303\\\", created_by_userId: \\\"aee49858-7f28-3532-b570-f91f096d5303\\\"}) {\\n    enquiry_id\\n  }\\n}\\n\"}";
-
-		Response response = given().contentType("application/json").body(query).log().all().when().log().all()
-				.post("/graphql-api/graphql").thenReturn();
-
-		System.out.println(
-				"enquiryID received from Response updateEnquiryWithUser:::!!!!!!::" + response.getBody().asString());
-
-		System.out.println("enquiryID received from Response updateEnquiryWithUser:::::" + enquiryID);
-
-	}
-
-	@Test(dependsOnMethods = { "createHealthEnquiry", "updateEnquiryWithUser" }, priority = 5)
-	public void updateEnquiryWithTerm() {
-
-		RestAssured.baseURI = "https://api.insuranceinbox.in";
-
-		String query = "{\"operationName\":null,\"variables\":{},\"query\":\"mutation {\\n  updateEnquiryWithTerm(enquiryId: \\\""
-				+ enquiryID + "\\\", payload: {term: 1}) {\\n    enquiry_id\\n  }\\n}\\n\"}";
-
-		Response response = given().contentType("application/json").body(query).when().post("/graphql-api/graphql")
-				.thenReturn();
-
-		JsonPath jsonPathEvaluator = response.jsonPath();
-
-		String enquiryID = jsonPathEvaluator.get("data.updateEnquiryWithTerm.enquiry_id");
-		System.out.println("enquiryID received from Response updateEnquiryWithTerm:" + enquiryID);
-
-	}
-
-	@Test(dependsOnMethods = { "createHealthEnquiry", "updateEnquiryWithTerm" }, priority = 6)
-	public void updateEnquiryWithSumInsured() {
-
-		RestAssured.baseURI = "https://api.insuranceinbox.in";
-
-		String query = "{\"operationName\":null,\"variables\":{},\"query\":\"mutation {\\n  updateEnquiryWithSumInsured(enquiryId: \\\""
-				+ enquiryID + "\\\", payload: {sumInsured: 300000}) {\\n    enquiry_id\\n  }\\n}\\n\"}";
-
-		Response response = given().contentType("application/json").body(query).when().post("/graphql-api/graphql")
-				.thenReturn();
-
-		JsonPath jsonPathEvaluator = response.jsonPath();
-
-		String enquiryID = jsonPathEvaluator.get("data.updateEnquiryWithSumInsured.enquiry_id");
-		System.out.println("enquiryID received from Response updateEnquiryWithSumInsured:" + enquiryID);
-
-	}
-
-*/
 }
